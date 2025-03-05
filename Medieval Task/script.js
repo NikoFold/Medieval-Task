@@ -5,6 +5,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const taskTitleInput = document.getElementById("task-title");
     const taskDescInput = document.getElementById("task-desc");
     const taskCompletedInput = document.getElementById("completed");
+    const filterUserInput = document.getElementById("filter-user");
+    const filterButton = document.getElementById("filter-btn");
+    
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || []; // Recupera as tarefas salvas
+    renderTasks();
 
     taskForm.addEventListener("submit", (event) => {
         event.preventDefault();
@@ -16,11 +21,26 @@ document.addEventListener("DOMContentLoaded", () => {
             completed: taskCompletedInput.checked
         };
 
-        addTaskToList(newTask);
+        tasks.push(newTask);
+        saveTasks();
+        renderTasks();
         taskForm.reset();
     });
 
-    function addTaskToList(task) {
+    function saveTasks() {
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    function renderTasks(filteredUserId = null) {
+        taskList.innerHTML = "";
+        tasks.forEach((task, index) => {
+            if (filteredUserId === null || task.userId == filteredUserId) {
+                addTaskToList(task, index);
+            }
+        });
+    }
+
+    function addTaskToList(task, index) {
         const li = document.createElement("li");
         li.classList.add("task-item");
 
@@ -35,17 +55,30 @@ document.addEventListener("DOMContentLoaded", () => {
         const editButton = li.querySelector(".edit-task");
         const deleteButton = li.querySelector(".delete-task");
 
-        editButton.addEventListener("click", () => editTask(li, task));
-        deleteButton.addEventListener("click", () => li.remove());
+        editButton.addEventListener("click", () => editTask(index));
+        deleteButton.addEventListener("click", () => {
+            tasks.splice(index, 1);
+            saveTasks();
+            renderTasks();
+        });
 
         taskList.appendChild(li);
     }
 
-    function editTask(li, task) {
+    function editTask(index) {
+        const task = tasks[index];
         taskTitleInput.value = task.title;
         taskDescInput.value = task.description;
         userIdInput.value = task.userId;
         taskCompletedInput.checked = task.completed;
-        li.remove();
+
+        tasks.splice(index, 1);
+        saveTasks();
+        renderTasks();
     }
+
+    filterButton.addEventListener("click", () => {
+        const filteredUserId = filterUserInput.value.trim();
+        renderTasks(filteredUserId || null);
+    });
 });
