@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const filterUserInput = document.getElementById("filter-user");
     const filterButton = document.getElementById("filter-btn");
     
-    let tasks = JSON.parse(localStorage.getItem("tasks")) || []; // Recupera as tarefas salvas
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
     renderTasks();
 
     taskForm.addEventListener("submit", (event) => {
